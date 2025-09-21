@@ -720,8 +720,16 @@ proxyToClash(std::vector<Proxy> &nodes, YAML::Node &yamlnode, const ProxyGroupCo
         string_array filtered_nodelist;
 
         singlegroup["name"] = x.Name;
+        std::cerr << "[DEBUG] Generating group - Name: " << x.Name << ", Icon: " << x.Icon << std::endl;
         if (!x.Icon.empty())
+        {
             singlegroup["icon"] = x.Icon;
+            std::cerr << "[DEBUG] Added icon field: " << x.Icon << std::endl;
+        }
+        else
+        {
+            std::cerr << "[DEBUG] No icon to add for group: " << x.Name << std::endl;
+        }
         if (x.Type == ProxyGroupType::Smart)
             singlegroup["type"] = "url-test";
         else

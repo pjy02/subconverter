@@ -208,22 +208,27 @@ namespace INIBinding
                     continue;
 
                 // 检查是否包含图标信息 (格式: name|icon`type`...)
+                std::cerr << "[DEBUG] Processing proxy group: " << vArray[0] << std::endl;
                 if(vArray[0].find('|') != std::string::npos)
                 {
+                    std::cerr << "[DEBUG] Found icon separator in: " << vArray[0] << std::endl;
                     StrArray nameArray = split(vArray[0], "|");
                     if(nameArray.size() >= 2)
                     {
                         conf.Name = nameArray[0];
                         conf.Icon = nameArray[1];
+                        std::cerr << "[DEBUG] Parsed - Name: " << conf.Name << ", Icon: " << conf.Icon << std::endl;
                     }
                     else
                     {
                         conf.Name = vArray[0];
+                        std::cerr << "[DEBUG] Icon parsing failed, using full name: " << conf.Name << std::endl;
                     }
                 }
                 else
                 {
                     conf.Name = vArray[0];
+                    std::cerr << "[DEBUG] No icon separator found, name: " << conf.Name << std::endl;
                 }
                 String type = vArray[1];
 
