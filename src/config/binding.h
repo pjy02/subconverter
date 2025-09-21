@@ -209,25 +209,23 @@ namespace INIBinding
 
                 // 检查是否包含图标信息 (格式: name|icon`type`...)
                 std::cerr << "[DEBUG] Processing proxy group: " << vArray[0] << std::endl;
-                if(vArray[0].find('|') != std::string::npos)
+                
+                // 查找管道符号位置
+                size_t pipe_pos = vArray[0].find('|');
+                if(pipe_pos != std::string::npos)
                 {
-                    std::cerr << "[DEBUG] Found icon separator in: " << vArray[0] << std::endl;
-                    StrArray nameArray = split(vArray[0], "|");
-                    if(nameArray.size() >= 2)
-                    {
-                        conf.Name = nameArray[0];
-                        conf.Icon = nameArray[1];
-                        std::cerr << "[DEBUG] Parsed - Name: " << conf.Name << ", Icon: " << conf.Icon << std::endl;
-                    }
-                    else
-                    {
-                        conf.Name = vArray[0];
-                        std::cerr << "[DEBUG] Icon parsing failed, using full name: " << conf.Name << std::endl;
-                    }
+                    std::cerr << "[DEBUG] Found icon separator at position: " << pipe_pos << " in: " << vArray[0] << std::endl;
+                    
+                    // 手动分割字符串
+                    conf.Name = vArray[0].substr(0, pipe_pos);
+                    conf.Icon = vArray[0].substr(pipe_pos + 1);
+                    
+                    std::cerr << "[DEBUG] Manual split - Name: '" << conf.Name << "', Icon: '" << conf.Icon << "'" << std::endl;
                 }
                 else
                 {
                     conf.Name = vArray[0];
+                    conf.Icon = "";  // 明确设置为空
                     std::cerr << "[DEBUG] No icon separator found, name: " << conf.Name << std::endl;
                 }
                 String type = vArray[1];
