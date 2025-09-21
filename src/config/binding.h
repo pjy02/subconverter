@@ -18,6 +18,7 @@ namespace toml
         {
             ProxyGroupConfig conf;
             conf.Name = find<String>(v, "name");
+            conf.Icon = find_or<String>(v, "icon", "");  // 添加图标解析
             String type = find<String>(v, "type");
             String strategy = find_or<String>(v, "strategy", "");
             switch(hash_(type))
@@ -208,6 +209,17 @@ namespace INIBinding
 
                 conf.Name = vArray[0];
                 String type = vArray[1];
+                
+                // 检查是否包含图标信息 (格式: name|icon`type`...)
+                if(conf.Name.find('|') != std::string::npos)
+                {
+                    StrArray nameArray = split(conf.Name, "|");
+                    if(nameArray.size() >= 2)
+                    {
+                        conf.Name = nameArray[0];
+                        conf.Icon = nameArray[1];
+                    }
+                }
 
                 rules_upper_bound = vArray.size();
                 switch(hash_(type))

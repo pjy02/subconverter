@@ -23,6 +23,7 @@ enum class BalanceStrategy
 struct ProxyGroupConfig
 {
     String Name;
+    String Icon;  // 添加图标字段
     ProxyGroupType Type;
     StrArray Proxies;
     StrArray UsingProvider;

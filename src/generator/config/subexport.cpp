@@ -720,6 +720,8 @@ proxyToClash(std::vector<Proxy> &nodes, YAML::Node &yamlnode, const ProxyGroupCo
         string_array filtered_nodelist;
 
         singlegroup["name"] = x.Name;
+        if (!x.Icon.empty())
+            singlegroup["icon"] = x.Icon;
         if (x.Type == ProxyGroupType::Smart)
             singlegroup["type"] = "url-test";
         else
