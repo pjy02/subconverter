@@ -207,19 +207,25 @@ namespace INIBinding
                 if(vArray.size() < 3)
                     continue;
 
-                conf.Name = vArray[0];
-                String type = vArray[1];
-                
                 // 检查是否包含图标信息 (格式: name|icon`type`...)
-                if(conf.Name.find('|') != std::string::npos)
+                if(vArray[0].find('|') != std::string::npos)
                 {
-                    StrArray nameArray = split(conf.Name, "|");
+                    StrArray nameArray = split(vArray[0], "|");
                     if(nameArray.size() >= 2)
                     {
                         conf.Name = nameArray[0];
                         conf.Icon = nameArray[1];
                     }
+                    else
+                    {
+                        conf.Name = vArray[0];
+                    }
                 }
+                else
+                {
+                    conf.Name = vArray[0];
+                }
+                String type = vArray[1];
 
                 rules_upper_bound = vArray.size();
                 switch(hash_(type))
