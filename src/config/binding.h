@@ -8,6 +8,7 @@
 #include "proxygroup.h"
 #include "regmatch.h"
 #include "ruleset.h"
+#include "utils/logger.h"
 
 namespace toml
 {
@@ -247,9 +248,10 @@ namespace INIBinding
 
                 if(conf.Type == ProxyGroupType::URLTest || conf.Type == ProxyGroupType::LoadBalance || conf.Type == ProxyGroupType::Fallback)
                 {
-                    if(rules_upper_bound < (proxy_start_index + 3))
+                    // 对于这些类型，需要至少有：代理 + URL + 时间参数
+                    if(vArray.size() < (proxy_start_index + 3))
                         continue;
-                    rules_upper_bound -= 2;
+                    rules_upper_bound = vArray.size() - 2;
                     conf.Url = vArray[rules_upper_bound];
                     parseGroupTimes(vArray[rules_upper_bound + 1], &conf.Interval, &conf.Timeout, &conf.Tolerance);
                 }
