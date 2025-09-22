@@ -8,7 +8,6 @@
 #include "proxygroup.h"
 #include "regmatch.h"
 #include "ruleset.h"
-#include "utils/logger.h"
 
 namespace toml
 {
@@ -209,14 +208,6 @@ namespace INIBinding
 
                 conf.Name = vArray[0];
                 String type = vArray[1];
-                
-                // 检查第三个参数是否是图标URL（以http开头）
-                unsigned int proxy_start_index = 2;
-                if(vArray.size() > 2 && (startsWith(vArray[2], "http://") || startsWith(vArray[2], "https://")))
-                {
-                    conf.Icon = vArray[2];
-                    proxy_start_index = 3;
-                }
 
                 rules_upper_bound = vArray.size();
                 switch(hash_(type))
@@ -248,15 +239,14 @@ namespace INIBinding
 
                 if(conf.Type == ProxyGroupType::URLTest || conf.Type == ProxyGroupType::LoadBalance || conf.Type == ProxyGroupType::Fallback)
                 {
-                    // 对于这些类型，需要至少有：代理 + URL + 时间参数
-                    if(vArray.size() < (proxy_start_index + 3))
+                    if(rules_upper_bound < 5)
                         continue;
-                    rules_upper_bound = vArray.size() - 2;
+                    rules_upper_bound -= 2;
                     conf.Url = vArray[rules_upper_bound];
                     parseGroupTimes(vArray[rules_upper_bound + 1], &conf.Interval, &conf.Timeout, &conf.Tolerance);
                 }
 
-                for(unsigned int i = proxy_start_index; i < rules_upper_bound; i++)
+                for(unsigned int i = 2; i < rules_upper_bound; i++)
                 {
                     if(startsWith(vArray[i], "!!PROVIDER="))
                     {
