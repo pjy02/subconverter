@@ -18,7 +18,6 @@ namespace toml
         {
             ProxyGroupConfig conf;
             conf.Name = find<String>(v, "name");
-            conf.Icon = find_or<String>(v, "icon", "");  // 添加图标解析
             String type = find<String>(v, "type");
             String strategy = find_or<String>(v, "strategy", "");
             switch(hash_(type))
@@ -207,27 +206,7 @@ namespace INIBinding
                 if(vArray.size() < 3)
                     continue;
 
-                // 检查是否包含图标信息 (格式: name|icon`type`...)
-                std::cerr << "[DEBUG] Processing proxy group: " << vArray[0] << std::endl;
-                
-                // 查找管道符号位置
-                size_t pipe_pos = vArray[0].find('|');
-                if(pipe_pos != std::string::npos)
-                {
-                    std::cerr << "[DEBUG] Found icon separator at position: " << pipe_pos << " in: " << vArray[0] << std::endl;
-                    
-                    // 手动分割字符串
-                    conf.Name = vArray[0].substr(0, pipe_pos);
-                    conf.Icon = vArray[0].substr(pipe_pos + 1);
-                    
-                    std::cerr << "[DEBUG] Manual split - Name: '" << conf.Name << "', Icon: '" << conf.Icon << "'" << std::endl;
-                }
-                else
-                {
-                    conf.Name = vArray[0];
-                    conf.Icon = "";  // 明确设置为空
-                    std::cerr << "[DEBUG] No icon separator found, name: " << conf.Name << std::endl;
-                }
+                conf.Name = vArray[0];
                 String type = vArray[1];
 
                 rules_upper_bound = vArray.size();
