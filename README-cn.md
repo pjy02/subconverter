@@ -928,6 +928,8 @@ exclude=(流量|官网)
 ```ini
 custom_proxy_group=Group_Name`url-test|fallback|load-balance`Rule_1`Rule_2`...`test_url`interval[,timeout][,tolerance]
 custom_proxy_group=Group_Name`select`Rule_1`Rule_2`...
+# 可选：通过 icon=URL 声明远程图标（仅 Clash/Clash.Meta/Stash 等支持该字段的客户端会展示）
+custom_proxy_group=🎯 总模式`select`icon=https://example.com/icon.svg`[]DIRECT`[]Proxy`.*
 # 格式示例
 custom_proxy_group=🍎 苹果服务`url-test`(美国|US)`http://www.gstatic.com/generate_204`300,5,100
 # 表示创建一个叫 🍎 苹果服务 的 url-test 策略组,并向其中添加名字含'美国','US'的节点，每隔300秒测试一次，测速超时为5s，切换节点的延迟容差为100ms
