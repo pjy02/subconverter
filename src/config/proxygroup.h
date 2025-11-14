@@ -24,6 +24,7 @@ struct ProxyGroupConfig
 {
     String Name;
     ProxyGroupType Type;
+    String Icon;
     StrArray Proxies;
     StrArray UsingProvider;
     String Url;
