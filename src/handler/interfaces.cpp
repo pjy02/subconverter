@@ -521,20 +521,19 @@ std::string subconverter(RESPONSE_CALLBACK_ARGS) {
         }
     } else {
         if (!lSimpleSubscription) {
-            /// loading custom groups
-            if (!argCustomGroups.empty() && !ext.nodelist) {
-                string_array vArray = split(argCustomGroups, "@");
-                auto override_groups = INIBinding::from<ProxyGroupConfig>::from_ini(vArray);
-                inheritGroupIcons(override_groups, lCustomProxyGroups);
-                lCustomProxyGroups = std::move(override_groups);
-            }
-
             /// loading custom rulesets
             if (!argCustomRulesets.empty() && !ext.nodelist) {
                 string_array vArray = split(argCustomRulesets, "@");
                 lCustomRulesets = INIBinding::from<RulesetConfig>::from_ini(vArray);
             }
         }
+    }
+
+    if (!lSimpleSubscription && !ext.nodelist && !argCustomGroups.empty()) {
+        string_array vArray = split(argCustomGroups, "@");
+        auto override_groups = INIBinding::from<ProxyGroupConfig>::from_ini(vArray);
+        inheritGroupIcons(override_groups, lCustomProxyGroups);
+        lCustomProxyGroups = std::move(override_groups);
     }
     if (ext.enable_rule_generator && !ext.nodelist && !lSimpleSubscription) {
         if (lCustomRulesets != global.customRulesets)
