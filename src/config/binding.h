@@ -18,6 +18,8 @@ namespace toml
         {
             ProxyGroupConfig conf;
             conf.Name = find<String>(v, "name");
+            if(v.contains("icon"))
+                conf.Icon = find<String>(v, "icon");
             String type = find<String>(v, "type");
             String strategy = find_or<String>(v, "strategy", "");
             switch(hash_(type))
@@ -254,6 +256,10 @@ namespace INIBinding
                         conf.UsingProvider.reserve(conf.UsingProvider.size() + list.size());
                         std::move(list.begin(), list.end(), std::back_inserter(conf.UsingProvider));
                     }
+                    else if(startsWith(vArray[i], "icon="))
+                        conf.Icon = vArray[i].substr(5);
+                    else if(startsWith(vArray[i], "icon:"))
+                        conf.Icon = vArray[i].substr(5);
                     else
                         conf.Proxies.emplace_back(std::move(vArray[i]));
                 }

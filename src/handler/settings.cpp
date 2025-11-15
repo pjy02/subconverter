@@ -180,7 +180,7 @@ void readGroup(YAML::Node node, string_array &dest, bool scope_limit = true)
             dest.emplace_back("!!import:" + name);
             continue;
         }
-        std::string url = "http://www.gstatic.com/generate_204", interval = "300", tolerance, timeout;
+        std::string url = "http://www.gstatic.com/generate_204", interval = "300", tolerance, timeout, icon;
         object["name"] >>= name;
         object["type"] >>= type;
         tempArray.emplace_back(name);
@@ -189,8 +189,11 @@ void readGroup(YAML::Node node, string_array &dest, bool scope_limit = true)
         object["interval"] >>= interval;
         object["tolerance"] >>= tolerance;
         object["timeout"] >>= timeout;
+        object["icon"] >>= icon;
         for(std::size_t j = 0; j < object["rule"].size(); j++)
             tempArray.emplace_back(safe_as<std::string>(object["rule"][j]));
+        if(!icon.empty())
+            tempArray.emplace_back("icon=" + icon);
         switch(hash_(type))
         {
         case "select"_hash:

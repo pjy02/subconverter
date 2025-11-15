@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 #include <string>
 #include <mutex>
 #include <numeric>
@@ -36,6 +37,26 @@
 extern WebServer webServer;
 
 string_array gRegexBlacklist = {"(.*)*"};
+
+namespace {
+
+void inheritGroupIcons(ProxyGroupConfigs &overrides, const ProxyGroupConfigs &fallback)
+{
+    if(overrides.empty() || fallback.empty())
+        return;
+    for(auto &group : overrides)
+    {
+        if(!group.Icon.empty())
+            continue;
+        auto iter = std::find_if(fallback.begin(), fallback.end(), [&](const ProxyGroupConfig &candidate) {
+            return candidate.Name == group.Name;
+        });
+        if(iter != fallback.end())
+            group.Icon = iter->Icon;
+    }
+}
+
+}
 
 std::string parseProxy(const std::string &source) {
     std::string proxy = source;
@@ -500,18 +521,19 @@ std::string subconverter(RESPONSE_CALLBACK_ARGS) {
         }
     } else {
         if (!lSimpleSubscription) {
-            /// loading custom groups
-            if (!argCustomGroups.empty() && !ext.nodelist) {
-                string_array vArray = split(argCustomGroups, "@");
-                lCustomProxyGroups = INIBinding::from<ProxyGroupConfig>::from_ini(vArray);
-            }
-
             /// loading custom rulesets
             if (!argCustomRulesets.empty() && !ext.nodelist) {
                 string_array vArray = split(argCustomRulesets, "@");
                 lCustomRulesets = INIBinding::from<RulesetConfig>::from_ini(vArray);
             }
         }
+    }
+
+    if (!lSimpleSubscription && !ext.nodelist && !argCustomGroups.empty()) {
+        string_array vArray = split(argCustomGroups, "@");
+        auto override_groups = INIBinding::from<ProxyGroupConfig>::from_ini(vArray);
+        inheritGroupIcons(override_groups, lCustomProxyGroups);
+        lCustomProxyGroups = std::move(override_groups);
     }
     if (ext.enable_rule_generator && !ext.nodelist && !lSimpleSubscription) {
         if (lCustomRulesets != global.customRulesets)
