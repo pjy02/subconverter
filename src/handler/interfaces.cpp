@@ -1,7 +1,9 @@
 #include <iostream>
+#include <algorithm>
 #include <string>
 #include <mutex>
 #include <numeric>
+#include <unordered_map>
 
 #include <inja.hpp>
 #include <yaml-cpp/yaml.h>
@@ -36,6 +38,47 @@
 extern WebServer webServer;
 
 string_array gRegexBlacklist = {"(.*)*"};
+
+namespace {
+
+ProxyGroupConfigs applyGroupOverrides(const ProxyGroupConfigs &base, ProxyGroupConfigs overrides)
+{
+    if(overrides.empty())
+        return overrides;
+
+    std::unordered_map<std::string, const ProxyGroupConfig*> lookup;
+    lookup.reserve(base.size());
+    for(const auto &group : base)
+        lookup.emplace(group.Name, &group);
+
+    ProxyGroupConfigs merged;
+    merged.reserve(std::max(base.size(), overrides.size()));
+
+    for(auto &group : overrides)
+    {
+        auto iter = lookup.find(group.Name);
+        if(iter != lookup.end())
+        {
+            if(group.Icon.empty())
+                group.Icon = iter->second->Icon;
+            lookup.erase(iter);
+        }
+        merged.emplace_back(std::move(group));
+    }
+
+    if(!lookup.empty())
+    {
+        for(const auto &group : base)
+        {
+            if(lookup.find(group.Name) != lookup.end())
+                merged.emplace_back(group);
+        }
+    }
+
+    return merged;
+}
+
+}
 
 std::string parseProxy(const std::string &source) {
     std::string proxy = source;
@@ -500,18 +543,18 @@ std::string subconverter(RESPONSE_CALLBACK_ARGS) {
         }
     } else {
         if (!lSimpleSubscription) {
-            /// loading custom groups
-            if (!argCustomGroups.empty() && !ext.nodelist) {
-                string_array vArray = split(argCustomGroups, "@");
-                lCustomProxyGroups = INIBinding::from<ProxyGroupConfig>::from_ini(vArray);
-            }
-
             /// loading custom rulesets
             if (!argCustomRulesets.empty() && !ext.nodelist) {
                 string_array vArray = split(argCustomRulesets, "@");
                 lCustomRulesets = INIBinding::from<RulesetConfig>::from_ini(vArray);
             }
         }
+    }
+
+    if (!lSimpleSubscription && !ext.nodelist && !argCustomGroups.empty()) {
+        string_array vArray = split(argCustomGroups, "@");
+        auto override_groups = INIBinding::from<ProxyGroupConfig>::from_ini(vArray);
+        lCustomProxyGroups = applyGroupOverrides(lCustomProxyGroups, std::move(override_groups));
     }
     if (ext.enable_rule_generator && !ext.nodelist && !lSimpleSubscription) {
         if (lCustomRulesets != global.customRulesets)
