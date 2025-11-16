@@ -1,5 +1,6 @@
 #include <iostream>
 #include <algorithm>
+#include <cctype>
 #include <string>
 #include <mutex>
 #include <numeric>
@@ -145,7 +146,7 @@ void assignDefaultIcons(ProxyGroupConfigs &groups)
     }
 }
 
-ProxyGroupConfigs applyGroupOverrides(const ProxyGroupConfigs &base, ProxyGroupConfigs overrides)
+ProxyGroupConfigs applyGroupOverrides(const ProxyGroupConfigs &base, ProxyGroupConfigs overrides, bool enable_auto_icons)
 {
     if(overrides.empty())
         return overrides;
@@ -179,7 +180,8 @@ ProxyGroupConfigs applyGroupOverrides(const ProxyGroupConfigs &base, ProxyGroupC
         }
     }
 
-    assignDefaultIcons(merged);
+    if(enable_auto_icons)
+        assignDefaultIcons(merged);
     return merged;
 }
 
@@ -488,6 +490,17 @@ std::string subconverter(RESPONSE_CALLBACK_ARGS) {
         "filename"), argUpdateInterval = getUrlArg(
         argument, "interval"), argUpdateStrict = getUrlArg(argument, "strict");
     std::string argRenames = getUrlArg(argument, "rename"), argFilterScript = getUrlArg(argument, "filter_script");
+    std::string argAutoGroupIcons = getUrlArg(argument, "auto_group_icons");
+    bool enableAutoGroupIcons = false;
+    if(!argAutoGroupIcons.empty())
+    {
+        std::string normalized = argAutoGroupIcons;
+        std::transform(normalized.begin(), normalized.end(), normalized.begin(), [](unsigned char c)
+        {
+            return static_cast<char>(std::tolower(c));
+        });
+        enableAutoGroupIcons = normalized == "1" || normalized == "true" || normalized == "yes" || normalized == "on";
+    }
 
     /// switches with default value
     tribool argUpload = getUrlArg(argument, "upload"), argEmoji = getUrlArg(argument, "emoji"), argAddEmoji = getUrlArg(
@@ -505,7 +518,8 @@ std::string subconverter(RESPONSE_CALLBACK_ARGS) {
 
     std::string base_content, output_content;
     ProxyGroupConfigs lCustomProxyGroups = global.customProxyGroups;
-    assignDefaultIcons(lCustomProxyGroups);
+    if(enableAutoGroupIcons)
+        assignDefaultIcons(lCustomProxyGroups);
     RulesetConfigs lCustomRulesets = global.customRulesets;
     string_array lIncludeRemarks = global.includeRemarks, lExcludeRemarks = global.excludeRemarks;
     std::vector<RulesetContent> lRulesetContent;
@@ -632,7 +646,8 @@ std::string subconverter(RESPONSE_CALLBACK_ARGS) {
                         lCustomRulesets = extconf.surge_ruleset;
                     if (!extconf.custom_proxy_group.empty()) {
                         lCustomProxyGroups = extconf.custom_proxy_group;
-                        assignDefaultIcons(lCustomProxyGroups);
+                        if(enableAutoGroupIcons)
+                            assignDefaultIcons(lCustomProxyGroups);
                     }
                     ext.enable_rule_generator = extconf.enable_rule_generator;
                     ext.overwrite_original_rules = extconf.overwrite_original_rules;
@@ -662,7 +677,7 @@ std::string subconverter(RESPONSE_CALLBACK_ARGS) {
     if (!lSimpleSubscription && !ext.nodelist && !argCustomGroups.empty()) {
         string_array vArray = split(argCustomGroups, "@");
         auto override_groups = INIBinding::from<ProxyGroupConfig>::from_ini(vArray);
-        lCustomProxyGroups = applyGroupOverrides(lCustomProxyGroups, std::move(override_groups));
+        lCustomProxyGroups = applyGroupOverrides(lCustomProxyGroups, std::move(override_groups), enableAutoGroupIcons);
     }
     if (ext.enable_rule_generator && !ext.nodelist && !lSimpleSubscription) {
         if (lCustomRulesets != global.customRulesets)
