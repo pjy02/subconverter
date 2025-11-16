@@ -41,6 +41,110 @@ string_array gRegexBlacklist = {"(.*)*"};
 
 namespace {
 
+const std::unordered_map<std::string, std::string> kGroupIconMap = {
+    {u8"总模式", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/All.svg"},
+    {u8"订阅更新", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Update.svg"},
+    {u8"小红书", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/XiaoHongShu.svg"},
+    {u8"抖音", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/DouYin.svg"},
+    {u8"BiliBili", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/BiliBili.svg"},
+    {u8"Steam", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Steam.svg"},
+    {u8"Apple", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Apple.svg"},
+    {u8"Microsoft", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Microsoft.svg"},
+    {u8"Telegram", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Telegram.svg"},
+    {u8"电报消息", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Telegram.svg"},
+    {u8"Discord", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Discord.svg"},
+    {u8"Spotify", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Spotify.svg"},
+    {u8"TikTok", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/TikTok.svg"},
+    {u8"YouTube", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/YouTube.svg"},
+    {u8"Netflix", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Netflix.svg"},
+    {u8"Google", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Google.svg"},
+    {u8"GoogleFCM", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/GoogleFCM.svg"},
+    {u8"Facebook", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Facebook.svg"},
+    {u8"OpenAI", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/OpenAI.svg"},
+    {u8"GitHub", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/GitHub.svg"},
+    {u8"Twitter(X)", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Twitter.svg"},
+    {u8"DNS连接", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/DNS.svg"},
+    {u8"漏网之鱼", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/HBASE-copy.svg"},
+    {u8"广告拦截", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/No-ads-all.svg"},
+    {u8"WebRTC", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/WebRTC.svg"},
+    {u8"ALL·延迟最低", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Return.svg"},
+    {u8"延迟最低", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Return.svg"},
+    {u8"ALL·负载均衡", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Return.svg"},
+    {u8"负载均衡", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Return.svg"},
+    {u8"ALL·故障转移", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Return.svg"},
+    {u8"故障转移", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Return.svg"},
+    {u8"ALL·日本地区", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/JP.svg"},
+    {u8"日本地区", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/JP.svg"},
+    {u8"日本节点", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/JP.svg"},
+    {u8"ALL·中国台湾", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/CN.svg"},
+    {u8"中国台湾", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/CN.svg"},
+    {u8"台湾节点", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/CN.svg"},
+    {u8"ALL·中国香港地区", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/HK.svg"},
+    {u8"中国香港地区", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/HK.svg"},
+    {u8"香港节点", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/HK.svg"},
+    {u8"ALL·美国地区", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/US.svg"},
+    {u8"美国地区", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/US.svg"},
+    {u8"美国节点", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/US.svg"},
+    {u8"ALL·狮城地区", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Singapore.svg"},
+    {u8"狮城地区", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Singapore.svg"},
+    {u8"狮城节点", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Singapore.svg"},
+    {u8"ALL·其它地区", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Globe.svg"},
+    {u8"其它地区", "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Globe.svg"},
+    {u8"特殊地址", "https://cdn.jsdelivr.net/gh/MoGuangYu/Surfing@rm/Home/icon/User.svg"}
+};
+
+size_t utf8CharLength(unsigned char lead)
+{
+    if((lead & 0xF8) == 0xF0)
+        return 4;
+    if((lead & 0xF0) == 0xE0)
+        return 3;
+    if((lead & 0xE0) == 0xC0)
+        return 2;
+    return 1;
+}
+
+std::string normalizeGroupName(const std::string &name)
+{
+    if(name.empty())
+        return {};
+
+    size_t index = 0;
+    const size_t len = name.size();
+    while(index < len)
+    {
+        unsigned char ch = static_cast<unsigned char>(name[index]);
+        bool is_ascii = (ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z');
+        bool is_cjk = (ch >= 0xE4 && ch <= 0xE9 && index + 2 < len);
+        if(is_ascii || is_cjk)
+            break;
+        index += utf8CharLength(ch);
+    }
+
+    if(index >= len)
+        return {};
+
+    std::string normalized = name.substr(index);
+    return trimWhitespace(normalized, true, true);
+}
+
+void assignDefaultIcons(ProxyGroupConfigs &groups)
+{
+    for(auto &group : groups)
+    {
+        if(!group.Icon.empty())
+            continue;
+
+        std::string normalized = normalizeGroupName(group.Name);
+        if(normalized.empty())
+            continue;
+
+        auto iter = kGroupIconMap.find(normalized);
+        if(iter != kGroupIconMap.end())
+            group.Icon = iter->second;
+    }
+}
+
 ProxyGroupConfigs applyGroupOverrides(const ProxyGroupConfigs &base, ProxyGroupConfigs overrides)
 {
     if(overrides.empty())
@@ -75,6 +179,7 @@ ProxyGroupConfigs applyGroupOverrides(const ProxyGroupConfigs &base, ProxyGroupC
         }
     }
 
+    assignDefaultIcons(merged);
     return merged;
 }
 
@@ -400,6 +505,7 @@ std::string subconverter(RESPONSE_CALLBACK_ARGS) {
 
     std::string base_content, output_content;
     ProxyGroupConfigs lCustomProxyGroups = global.customProxyGroups;
+    assignDefaultIcons(lCustomProxyGroups);
     RulesetConfigs lCustomRulesets = global.customRulesets;
     string_array lIncludeRemarks = global.includeRemarks, lExcludeRemarks = global.excludeRemarks;
     std::vector<RulesetContent> lRulesetContent;
@@ -524,8 +630,10 @@ std::string subconverter(RESPONSE_CALLBACK_ARGS) {
 
                     if (!extconf.surge_ruleset.empty())
                         lCustomRulesets = extconf.surge_ruleset;
-                    if (!extconf.custom_proxy_group.empty())
+                    if (!extconf.custom_proxy_group.empty()) {
                         lCustomProxyGroups = extconf.custom_proxy_group;
+                        assignDefaultIcons(lCustomProxyGroups);
+                    }
                     ext.enable_rule_generator = extconf.enable_rule_generator;
                     ext.overwrite_original_rules = extconf.overwrite_original_rules;
                 }
